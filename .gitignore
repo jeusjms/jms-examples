@@ -1,0 +1,10 @@
+.classpath
+.project
+.idea
+*.eml
+*.iml
+*.userlibraries
+
+derby.log
+
+target/
