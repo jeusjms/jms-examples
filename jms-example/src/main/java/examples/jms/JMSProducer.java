@@ -4,8 +4,7 @@ import javax.jms.*;
 import java.util.Arrays;
 
 class JMSProducer extends JMSMessageHandler {
-    private MessageProducer producer;
-    private Destination destination;    
+    private Destination destination;
 
 
     JMSProducer(Connection connection) {
@@ -28,7 +27,7 @@ class JMSProducer extends JMSMessageHandler {
             while (elapsed < duration) {
                 try {
                     session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-                    producer = session.createProducer(destination);
+                    MessageProducer producer = session.createProducer(destination);
                     Message message = setMessage();
                     producer.send(message);
                     count++;
@@ -44,14 +43,13 @@ class JMSProducer extends JMSMessageHandler {
                         }
                     }
 
-//                    if (count % LOG_UNIT == 0)
-//                        System.out.println(id + " sending " + count + " messages");
-
                     session.close();
                     elapsed = System.currentTimeMillis() - startTime;
                 } catch (JMSException e) {
                     failedCount++;
                     System.out.println(id +"Failed to send message(" + failedCount + "):" + e);
+                    e.printStackTrace(System.out);
+
                     if (DEFAULT_FAILED_COUNT > 0 && failedCount > DEFAULT_FAILED_COUNT) {
                         System.out.println(id + "Stop sending by failure limit.");
                         break;
