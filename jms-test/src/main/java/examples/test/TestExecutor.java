@@ -70,6 +70,8 @@ public class TestExecutor {
     }
 
     private static void doTest() throws IOException, InterruptedException {
+        Thread.sleep(TestEnvironment.WARMING_UP_TIME);
+
         startJeus();
 
         Thread.sleep(TestEnvironment.WARMING_UP_TIME);
