@@ -10,6 +10,8 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
 
     private boolean async = false;
 
+    private static final boolean PERFORMANCE = Boolean.parseBoolean(System.getProperty("examples.test.consume-performance", "false"));
+
     JMSConsumer(Connection connection, boolean async) {
         super(connection);
         this.id = "[JMSConsumer-" + idGenerator.getAndIncrement() + "]";
@@ -30,12 +32,12 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
 
     public void run() {
         try {
-            writer = new PrintWriter("result/elapsed/JMSConsumer" + System.currentTimeMillis() + ".csv");
+            if (PERFORMANCE)
+                writer = new PrintWriter("result/elapsed/JMSConsumer" + System.currentTimeMillis() + ".csv");
             long startTime = System.currentTimeMillis();
             long elapsed = System.currentTimeMillis() - startTime;
 
             int failedCount = 0;
-//            System.out.println(id + " starting consume message. async=" + async);
             while (elapsed < duration) {
                 if (async) {
                     try {
@@ -112,12 +114,9 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
                     bytesMessage.readBytes(bytes);
                     long t = bytesMessage.readLong();
                     if (writer != null)
-                    writer.println(System.currentTimeMillis() - t);
-//                    writer.flush();
+                        writer.println(System.currentTimeMillis() - t);
 
                     count++;
-//                    if (count % LOG_UNIT == 0)
-//                        System.out.println(id + " consuming " + count + " messages");
 
                     if (DEBUG)
                         System.out.println(id + " receive[" + count + "]" + message);
