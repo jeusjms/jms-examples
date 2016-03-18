@@ -4,6 +4,7 @@
 *.eml
 *.iml
 *.userlibraries
+run*.sh
 
 derby.log
 

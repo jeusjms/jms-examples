@@ -1,0 +1,15 @@
+#!/bin/sh
+
+$JAVA7/bin/java \
+ 	-classpath ./jms-test/target/jms-test-1.0-SNAPSHOT.jar:$JEUS_HOME/lib/client/jclient.jar:$JEUS_HOME/lib/system/jms.jar  \
+	-Dexamples.test.duration=600000			\
+	-Dexamples.test.warm-up-time=120000		\
+	-Dexamples.test.message-size=5120 		\
+	-Dexamples.test.send-client-count=8	\
+	-Dexamples.test.receive-client-count=8	\
+	-Dexamples.test.send-session-count=4	\
+	-Dexamples.test.receive-session-count=2	\
+	-Dexamples.test.produce-interval=0 		\
+	-Dexamples.test.ring-buffer-size=128		\
+	-Dexamples.test.profiling=false		\
+	examples.test.TestExecutor
