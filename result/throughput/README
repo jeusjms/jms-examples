@@ -1,0 +1,3 @@
+csv table format
+
+#received time; {total produce throughput; produce throughput; total consume throughput; consume throughput} for each destination
