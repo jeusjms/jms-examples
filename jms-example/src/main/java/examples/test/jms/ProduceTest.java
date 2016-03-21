@@ -10,11 +10,16 @@ import java.io.FileNotFoundException;
  * @author donghwan
  */
 public class ProduceTest {
+    static {
+        System.setProperty("jeus.jms.log.level","FINE");
+    }
+
     public static void main(String[] args) {
         try {
-            System.setProperty("jeus.jms.level", "FINE");
-            JMSClient client = new JMSClient("localhost", "9736", "ConnectionFactory");
-            client.produce("ExamplesQueue", 30 * 1000, "bytes", "1024", 200);
+            for (int i = 0; i < 1; i++) {
+                JMSClient client = new JMSClient("localhost", "9736", "ConnectionFactory");
+                client.produce("QUEUE1", 10 * 1000, "bytes", "1024", 100);
+            }
         } catch (NamingException e) {
             e.printStackTrace();
         } catch (JMSException e) {

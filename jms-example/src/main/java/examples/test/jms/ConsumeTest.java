@@ -10,11 +10,13 @@ import java.io.FileNotFoundException;
  * @author donghwan
  */
 public class ConsumeTest {
+    static {
+        System.setProperty("jeus.jms.log.level","FINE");
+    }
     public static void main(String[] args) {
         try {
-            System.setProperty("jeus.jms.level", "FINE");
             JMSClient client = new JMSClient("localhost", "9736", "ConnectionFactory");
-            client.consume("ExamplesQueue", 30 * 1000, "bytes", "1024", true);
+            client.consume("QUEUE1", 30 * 1000, "bytes", "1024", false, 500);
         } catch (NamingException e) {
             e.printStackTrace();
         } catch (JMSException e) {
