@@ -5,10 +5,14 @@ import jeus.jms.server.mbean.JMSDestinationResourceMBean;
 import javax.management.MBeanServerConnection;
 import javax.management.remote.JMXConnector;
 import javax.naming.InitialContext;
+import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author donghwan
@@ -22,7 +26,7 @@ public class MonitorExecutor extends Thread {
     String fileNamePrefix = "result/throughput/JEUS-MONITORING";
     long testId = 0;
     String fileNamePostfix;
-    PrintWriter writer;
+    ResultWriter writer;
 
     JMSEngineBootListener listener;
 
@@ -72,6 +76,9 @@ public class MonitorExecutor extends Thread {
             long prevTime = startTime;
             int i = 0;
 
+            String fileName = fileNamePrefix + testId + "-" + fileNamePostfix + ".csv";
+            System.out.println("opening output file: " + fileName);
+            writer = new ResultWriter(fileName);
             while (running) {
                 try {
                     long currTime = System.nanoTime();
@@ -81,7 +88,7 @@ public class MonitorExecutor extends Thread {
                         currStats += monitor.getStat(currTime - prevTime, currTime - startTime) + ",";
                     }
 
-                    writer.println(currStats);
+                    writer.write(currStats);
                     prevTime = currTime;
                     if (++i % LOGGING_INTERVAL == 0) {
                         System.out.println(currStats);
@@ -92,8 +99,7 @@ public class MonitorExecutor extends Thread {
                     System.out.println("FAILED:" + e);
                     if (listener != null)
                         listener.onEngineStop();
-                    if (writer != null)
-                        writer.close();
+                    writer.close();
 
                     JEUSMBeanMonitor.close();
 
@@ -107,9 +113,7 @@ public class MonitorExecutor extends Thread {
                             System.out.println("connected!");
                             if (listener != null)
                                 listener.onEngineStart();
-                            String fileName = fileNamePrefix + testId + "-" + fileNamePostfix + ".csv";
-                            System.out.println("opening output file: " + fileName);
-                            writer = new PrintWriter(fileName);
+                            writer.start();
                             break;
                         } catch (Throwable t) {
                             System.out.println("FAILED TO CONNECT:" + t.getMessage());
@@ -119,10 +123,51 @@ public class MonitorExecutor extends Thread {
                 }
             }
 
-            if (writer != null)
-                writer.close();
+            writer.close();
         } catch (Exception e1) {
             e1.printStackTrace();
+        }
+    }
+
+    private class ResultWriter extends Thread {
+        private LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<>();
+        private AtomicBoolean writerRunning = new AtomicBoolean(false);
+        PrintWriter writer;
+        String fileName;
+
+        public ResultWriter(String fileName) {
+            this.fileName = fileName;
+        }
+
+        public void run() {
+            if (writerRunning.compareAndSet(false, true)) {
+                try {
+                    writer = new PrintWriter(fileName);
+                    while (writerRunning.get()) {
+                        try {
+                            String result = queue.poll(1, TimeUnit.SECONDS);
+                            if (result != null) {
+                                writer.println(result);
+                            }
+                        } catch (InterruptedException ignore) {
+                        }
+                    }
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace(System.out);
+                } finally {
+                    writerRunning.set(false);
+                    if (writer != null)
+                        writer.close();
+                }
+            }
+        }
+
+        public void write(String result) {
+            queue.offer(result);
+        }
+
+        public void close() {
+            writerRunning.set(false);
         }
     }
 }
