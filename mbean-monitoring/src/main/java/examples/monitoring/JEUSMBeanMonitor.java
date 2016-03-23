@@ -37,6 +37,27 @@ public abstract class JEUSMBeanMonitor {
     private static JMXConnector connector;
     protected static MBeanServerConnection mbeanServer;
 
+    public static void main(String[] args) {
+        JEUSMBeanMonitor monitor = new JEUSMBeanMonitor() {
+            @Override
+            public String getStat(long elased, long running) throws Exception {
+                return null;
+            }
+        };
+
+        try {
+            JEUSMBeanMonitor.connect_jndi();
+            monitor.printAllMBeanList();
+            JEUSMBeanMonitor.close();
+        } catch (MalformedObjectNameException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (NamingException e) {
+            e.printStackTrace();
+        }
+    }
+
     protected void printAllMBeanList() throws MalformedObjectNameException, IOException {
         // Step 3. Query
         ObjectName jeusScope = null;
