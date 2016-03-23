@@ -101,12 +101,19 @@ public class TestExecutor {
             stopJeus();
         truncateStore();
         String option = "";
-        if (TestEnvironment.USE_SINGLE_HANDLER)
-            option += "-Djeus.jms.server.use-single-handler=true ";
-        if (TestEnvironment.USE_SINGLE_THREAD)
-            option += "-Djeus.jms.server.use-single-thread=true ";
+        if (TestEnvironment.FORCE_WEAKEN)
+            option += "-Djeus.jms.server.force-weaken-reference=true ";
+        if (TestEnvironment.PROFILING)
+            option += "-Djeus.jms.server.profiling=true ";
         if (!TestEnvironment.USE_DISRUPTOR) {
-            option = "-Djeus.jms.server.produce.use-disruptor=false";
+            option += "-Djeus.jms.server.use-single-thread=false ";
+            option += "-Djeus.jms.server.use-disruptor=false ";
+        } else {
+            if (TestEnvironment.USE_SINGLE_THREAD)
+                option += "-Djeus.jms.server.use-single-thread=true ";
+            if (!TestEnvironment.BATCH_DISTRIBUTE)
+                option += "-Djeus.jms.server.batch-distribute=false ";
+
         }
 
         String command = TestEnvironment.JEUS_HOME + "/bin/" + TestEnvironment.START_JEUS + " " + option;

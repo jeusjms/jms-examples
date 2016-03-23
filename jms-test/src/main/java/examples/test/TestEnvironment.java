@@ -13,6 +13,9 @@ public class TestEnvironment {
     public static final boolean USE_DISRUPTOR;
     public static final boolean USE_SINGLE_THREAD;
     public static final boolean USE_SINGLE_HANDLER;
+    public static final boolean PROFILING;
+    public static final boolean FORCE_WEAKEN;
+    public static final boolean BATCH_DISTRIBUTE;
     public static final String WORKSPACE;
 
     public static final String HOST;
@@ -57,6 +60,9 @@ public class TestEnvironment {
         USE_DISRUPTOR = Boolean.parseBoolean(System.getProperty("examples.test.use-disruptor", "true"));
         USE_SINGLE_THREAD = Boolean.parseBoolean(System.getProperty("examples.test.use-single-thread", "true"));
         USE_SINGLE_HANDLER = Boolean.parseBoolean(System.getProperty("examples.test.use-single-handler", "true"));
+        PROFILING = Boolean.parseBoolean(System.getProperty("examples.test.profiling", "false"));
+        FORCE_WEAKEN = Boolean.parseBoolean(System.getProperty("examples.test.force-weaken", "false"));
+        BATCH_DISTRIBUTE = Boolean.parseBoolean(System.getProperty("examples.test.batch-distribute", "true"));
 
         DURATION = Long.parseLong(System.getProperty("examples.test.duration", "300000"));
         MESSAGE_SIZE = Integer.parseInt(System.getProperty("examples.test.message-size", "2048"));
