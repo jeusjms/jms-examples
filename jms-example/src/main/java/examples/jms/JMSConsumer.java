@@ -11,6 +11,12 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
     private boolean async = false;
 
     private static final boolean PERFORMANCE = Boolean.parseBoolean(System.getProperty("examples.test.consume-performance", "false"));
+    static {
+        if (PERFORMANCE) {
+            System.out.println("profile enabled");
+            System.setProperty("jeus.jms.server.profiling", "true");
+        }
+    }
 
     JMSConsumer(Connection connection, boolean async) {
         super(connection);
@@ -79,7 +85,7 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
                 elapsed = System.currentTimeMillis() - startTime;
             }
             consumer.setMessageListener(null);
-            System.out.println(id + "Cosuming " + count + "mesages during " + elapsed + "ms");
+            System.out.println(id + "Cosuming " + count + "mesages during " + elapsed + "ms. average elapsed:" + averageElapsed + "ns");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (JMSException e) {
@@ -102,9 +108,13 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
 
     }
 
+    double averageElapsed = 0.0;
+
     public void onMessage(Message message) {
         if (message == null)
             return;
+        long start = System.nanoTime();
+        count++;
 
         if (type.equalsIgnoreCase("bytes")) {
             if (message instanceof BytesMessage) {
@@ -116,7 +126,6 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
                     if (writer != null)
                         writer.println(System.currentTimeMillis() - t);
 
-                    count++;
 
                     if (DEBUG)
                         System.out.println(id + " receive[" + count + "]" + message);
@@ -132,5 +141,8 @@ public class JMSConsumer extends JMSMessageHandler implements MessageListener {
                 System.out.println(id+ "Invalid type of message:" + message);
             }
         }
+        long elapsed = System.nanoTime() - start;
+        averageElapsed = (elapsed + (averageElapsed * (count - 1))) / count;
+
     }
 }

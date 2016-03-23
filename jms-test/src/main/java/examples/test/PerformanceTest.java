@@ -21,7 +21,6 @@ public class PerformanceTest extends Thread {
     long interval = 0;
     boolean send = true;
     boolean async = false;
-    boolean forceQuit = false;
 
     public static void main(String[] args) {
         // options setting
@@ -33,7 +32,6 @@ public class PerformanceTest extends Thread {
         long interval = 0;
         boolean send = false;
         boolean async = false;
-        boolean forceQuit = false;
 
         for (String arg : args) {
             String[] a = arg.split("=");
@@ -54,8 +52,6 @@ public class PerformanceTest extends Thread {
                     send =  Boolean.parseBoolean(a[1]);
                 } else if (a[0].equalsIgnoreCase("interval")) {
                     interval = Long.parseLong(a[1]);
-                } else if (a[0].equalsIgnoreCase("force")) {
-                    forceQuit = Boolean.parseBoolean(a[1]);
                 }
             }
         }
@@ -110,7 +106,7 @@ public class PerformanceTest extends Thread {
                     destIdx = 0;
             }
 
-            jmsClient.close(forceQuit);
+            jmsClient.close();
 
             if (testCompletionListener != null)
                 testCompletionListener.onComplete();

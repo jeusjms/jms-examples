@@ -107,10 +107,6 @@ public class JMSClient {
     }
 
     public void close() {
-        close(false);
-    }
-
-    public void close(boolean force) {
         long current = System.currentTimeMillis();
 
         boolean isEnded = false;
@@ -124,7 +120,7 @@ public class JMSClient {
                 Thread.sleep(sleepTime);
                 System.out.println("checking remain jobs");
                 isEnded = true;
-                if (!force) {
+                if (current > estimatedCompleteTime + 10 * 1000) {
                     for (JMSMessageHandler session : sessions) {
                         if (session.isEnd()) {
                             count += session.getCount();
